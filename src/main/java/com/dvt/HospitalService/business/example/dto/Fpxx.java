@@ -1,6 +1,7 @@
 package com.dvt.HospitalService.business.example.dto;
 
 public class Fpxx {
+	public String id;
 	public String fpdm;
 	public String fphm;
 	public String kprq;
@@ -29,12 +30,20 @@ public class Fpxx {
 	public void setKjje(String kjje) {
 		this.kjje = kjje;
 	}
-	public Fpxx(String fpdm, String fphm, String kprq, String kjje) {
+	
+	public Fpxx(String id, String fpdm, String fphm, String kprq, String kjje) {
 		super();
+		this.id = id;
 		this.fpdm = fpdm;
 		this.fphm = fphm;
 		this.kprq = kprq;
 		this.kjje = kjje;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	public Fpxx() {
 		super();

@@ -10,4 +10,6 @@ public interface SaxService {
 	public String checkUserScore();
 	
 	public String checkFpEffect(String ewmJson);
+	
+	
 }

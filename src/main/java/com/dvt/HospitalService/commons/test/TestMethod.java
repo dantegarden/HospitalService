@@ -1,18 +1,20 @@
 package com.dvt.HospitalService.commons.test;
 
-import java.net.MalformedURLException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.junit.Test;
 
-import com.dvt.HospitalService.commons.utils.XmlRpcUtils;
+import com.aliyun.oss.OSSClient;
+import com.dvt.HospitalService.commons.utils.HttpHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -30,7 +32,7 @@ public class TestMethod {
 	    System.out.println("Opened database successfully");
 	}
 	
-	@Test
+	//@Test
 	public void test2() throws Exception{
 		final String URL = "http://localhost:8069"; 
 	    //final String DB = "hospital-mh";  
@@ -52,5 +54,27 @@ public class TestMethod {
         }
 	}
 	
+//	@Test
+//	public void testmethod() throws IOException{
+//		Map<String,String> params = Maps.newHashMap();
+//		params.put("result", "{xxxx:'12312312'}");
+//		String reply = HttpHelper.startPost("http://localhost:8069/messageTest", params);
+//		System.out.println(reply);
+//	}
 	
+	@Test
+	public void testmethod() throws IOException{
+		   String endpoint = "http://oss-cn-zhangjiakou-internal.aliyuncs.com";
+		   String accessKeyId = "LTAITx6vWJr2pSUl";
+		   String accessKeySecret = "6gt4ltuZzWEycNFXrMKJS99inoOCnH";
+		   String bucketName = "kbfp";
+		   String key = "mykey";
+		   OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+		   
+		   ossClient.createBucket(bucketName);
+		   String content = "Hello OSS";
+		   ossClient.putObject(bucketName, key, new ByteArrayInputStream(content.getBytes()));
+		   
+		   ossClient.shutdown();
+	}
 }

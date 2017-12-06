@@ -1,6 +1,7 @@
 package com.dvt.HospitalService.business.example.dto;
 
 public class SaxResult {
+	public String id;
 	public String status;
 	public String des;
 	public SaxMsg saxmsg;
@@ -31,6 +32,19 @@ public class SaxResult {
 		this.status = status;
 		this.des = des;
 		this.saxmsg = saxmsg;
+	}
+	public SaxResult(String id, String status, String des, SaxMsg saxmsg) {
+		super();
+		this.id = id;
+		this.status = status;
+		this.des = des;
+		this.saxmsg = saxmsg;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	
 	

@@ -1,4 +1,7 @@
 package com.dvt.HospitalService.business.example.dto;
+
+import java.util.List;
+
 /**
  * 9 发票代码 1 10 发票号码 2 11 开票时间 3 12 校验码 4 13 机器编号 5 14 购买方 名称 6 15 纳税人识别号 7
  * 16 地址、电话 8 17 开户行及账号 9 18 货物或应税劳务、服务名称 10 19 规格型号 11 20 单位 12 21 数量 13 22
@@ -43,7 +46,7 @@ public class SaxMsg {
 	public String shy;//收货员
 	public String je_dx;//金额大写
 	public String je_xx;//金额小写
-	
+	public List<String> bz;//备注
 	
 	public String getFpdm() {
 		return fpdm;
@@ -295,6 +298,14 @@ public class SaxMsg {
 	public void setJe_xx(String je_xx) {
 		this.je_xx = je_xx;
 	}
+	public List<String> getBz() {
+		return bz;
+	}
+	public void setBz(List<String> bz) {
+		this.bz = bz;
+	}
+	
+	
 	
 	
 	

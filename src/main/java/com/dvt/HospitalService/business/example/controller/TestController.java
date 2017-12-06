@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.dvt.HospitalService.business.example.dto.Fpxx;
 import com.dvt.HospitalService.commons.GlobalConstants;
 
 
@@ -20,10 +21,11 @@ public class TestController {
 //	@Autowired
 //	private TestSqliteService testSqliteService;
 	
+	
+	
 	@RequestMapping
 	public String init() {
 		System.out.println("test initting");
-		
 		return GlobalConstants.PAGE_TEST;
 	}
 }
