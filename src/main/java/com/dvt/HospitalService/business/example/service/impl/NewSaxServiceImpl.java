@@ -716,10 +716,11 @@ public class NewSaxServiceImpl implements NewSaxService {
 	}
 	
 	private String strC(String input){
-		if(StringUtils.isNotBlank(input)){
-			return input + "&&";
-		}else{
-			return StringUtils.EMPTY;
-		}
+//		if(StringUtils.isNotBlank(input)){
+//			return input + "&&";
+//		}else{
+//			return StringUtils.EMPTY;
+//		}
+		return input + "&&";
 	}
 }
