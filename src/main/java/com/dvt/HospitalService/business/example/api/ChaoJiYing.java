@@ -1,4 +1,4 @@
-﻿package com.dvt.HospitalService.business.example.api;
+package com.dvt.HospitalService.business.example.api;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -16,10 +16,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 public class ChaoJiYing {
-	
 	/**
 	 * 字符串MD5加密
 	 * @param s 原始字符串
@@ -306,5 +303,4 @@ public class ChaoJiYing {
 		
 		return result;
 	}
-
 }
