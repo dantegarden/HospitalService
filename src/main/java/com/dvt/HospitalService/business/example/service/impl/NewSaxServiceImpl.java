@@ -356,6 +356,7 @@ public class NewSaxServiceImpl implements NewSaxService {
 							String fpname = CommonHelper.getNowStr("yyyyMMddHHmmss")+"_"+fpxx.getFpdm()+"_"+fpxx.getFphm()+".png";
 							String fppath = contextDir +"/fp_pic/"+fpname;
 							System.out.println("LOG-checkFpEffect:" + "结果窗口截屏");
+							Thread.sleep(1000);
 							SeleniumUtils.snapshot(driver, fpWindow, fppath);
 							while(true){
 								try {
