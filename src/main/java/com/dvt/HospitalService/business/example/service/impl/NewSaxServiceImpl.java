@@ -111,7 +111,7 @@ public class NewSaxServiceImpl implements NewSaxService {
 	public void test() throws Exception{
 		//String ewmJson = "{\"kjje\": \"725553\", \"fphm\": \"35439091\", \"kprq\": \"20170510\", \"fpdm\": \"5300162320\"}";
 		//String ewmJson = "{\"kjje\": \"1658803.20\", \"fphm\": \"03105556\", \"kprq\": \"20171201\", \"fpdm\": \"1100162160\"}";
-		String ewmJson ="{\"kjje\": \"926181\", \"fphm\": \"03819226\", \"id\": 118898, \"kprq\": \"20161206\", \"fpdm\": \"3400154350\"}";
+		String ewmJson ="{\"kjje\": \"917454\", \"fphm\": \"19527216\", \"id\": 118898, \"kprq\": \"20170724\", \"fpdm\": \"3500163350\"}";
 		//String ewmJson = "{\"kjje\": \"018148\", \"fphm\": \"50865206\", \"kprq\": \"20170913\", \"fpdm\": \"4300164320\"}";
 		SaxResult sr = checkFpEffect(ewmJson);
 		
@@ -331,6 +331,7 @@ public class NewSaxServiceImpl implements NewSaxService {
 			
 			YzmResult yzmres = JsonUtils.jsonToJavaBean(yzm_res,YzmResult.class);
 			// json字符串转对象
+			
 			System.out.println(yzmres.getPic_str());
 			yzm.sendKeys(yzmres.getPic_str());
 			String picid = yzmres.getPic_id();
@@ -727,6 +728,10 @@ public class NewSaxServiceImpl implements NewSaxService {
 						sr.setStatus("2");
 						sr.setDes("开具金额或校验码不正确");
 						System.out.println("LOG-checkFpEffect:" + "开具金额或校验码不正确");
+					}else if(!"0".equals(yzmres.getErr_no())){
+						sr.setStatus("2");
+						sr.setDes("超级鹰解码失败:" + yzmres.getErr_str());
+						System.out.println("LOG-checkFpEffect:" + "超级鹰解码失败:" + yzmres.getErr_str());
 					}else{
 						sr.setStatus("2");
 						sr.setDes("按钮置灰，请检查录入信息是否正确");
