@@ -6,12 +6,19 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dvt.HospitalService.business.example.dto.Fpxx;
 import com.dvt.HospitalService.business.example.dto.PassResult;
 import com.dvt.HospitalService.business.example.dto.SaxResult;
 import com.dvt.HospitalService.business.example.service.InitService;
@@ -46,7 +53,8 @@ public class InitServiceImpl implements InitService {
 	private final static String MQ_VHOST;
 	private final static String SYS_HOSTNAME;
 	private final static String ODOO_INTERFACE;
-	
+	private final static String WAIT_TIME;
+	private final static ExecutorService pool;
 	static{
 		Properties prop = new Properties();
 		try {
@@ -64,6 +72,8 @@ public class InitServiceImpl implements InitService {
 		MQ_VHOST = prop.getProperty("rmq.vhost");
 		ODOO_INTERFACE = prop.getProperty("odoo.interface");
 		SYS_HOSTNAME = getHostNameForLiunx();
+		WAIT_TIME = prop.getProperty("wait.time");
+		pool = Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
 	}
 	
 	@Override
@@ -125,7 +135,8 @@ public class InitServiceImpl implements InitService {
 				} catch (Exception e) {
 					logger.error(SYS_HOSTNAME + " Worker ["+index+"] said : Error When Do Message ["+message+"] ");
 					//TODO 调ODOO接口返回错误
-					String backJson = JsonUtils.JavaBeanToJson(new SaxResult("2", "爬虫执行报错:"+e.getMessage(), null));
+					String fpid = JsonUtils.jsonToJavaBean(message, Fpxx.class).getId();
+					String backJson = JsonUtils.JavaBeanToJson(new SaxResult(fpid, "2", "爬虫执行报错:"+e.getMessage(), null));
 					invokeOdooInPost(backJson, index, message);
 					e.printStackTrace();
 				} finally {
@@ -140,10 +151,41 @@ public class InitServiceImpl implements InitService {
 	}
 	
 	private void consume(String message, Integer index) throws Exception {
-		SaxResult sr = this.newSaxService.checkFpEffect(message);
-		String backJson = JsonUtils.JavaBeanToJson(sr);
+
+		Thread mainThread = Thread.currentThread();//主线程
+
+		NewSaxServiceImpl saxService = new NewSaxServiceImpl();
+		saxService.setEwmJson(message);
+//		Thread saxThread = new Thread(saxService); //子线程
+//		saxThread.start();
+		
+		Future<String> future = pool.submit(saxService);
+		try {  
+			String backJson = future.get(Integer.valueOf(InitServiceImpl.WAIT_TIME), TimeUnit.SECONDS);  
+			invokeOdooInPost(backJson, index, message);
+        } catch (InterruptedException e) {
+        	System.out.println("InterruptedException 超时30秒");
+        	future.cancel(true);
+        	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
+        } catch (ExecutionException e) {
+        	System.out.println("ExecutionException 超时30秒");
+        	future.cancel(true);
+        	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
+        } catch (TimeoutException e) {  
+        	System.out.println("TimeoutException 超时30秒");
+        	future.cancel(true); 
+        	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
+        }
+		
+		
+		while(!future.isDone()&&!future.isCancelled()){
+			mainThread.sleep(1000);
+		}
+		System.out.println("1111");
+//		SaxResult sr = this.newSaxService.checkFpEffect(message);
+//		String backJson = JsonUtils.JavaBeanToJson(sr);
 		//TODO 调odoo接口返回数据
-		invokeOdooInPost(backJson, index, message);
+		//invokeOdooInPost(backJson, index, message);
 	}
 	
 	private void invokeOdooInPost(String backJson, Integer index, String message) throws IOException{
@@ -154,7 +196,7 @@ public class InitServiceImpl implements InitService {
 		String passJson = HttpHelper.startPost(ODOO_INTERFACE, params);
 		PassResult pr = JsonUtils.jsonToJavaBean(passJson, PassResult.class);
 		if(pr.getState().equals("0")){
-		logger.info(SYS_HOSTNAME + " Worker ["+index+"] said : Pass Message Over ["+message+"] ");
+			logger.info(SYS_HOSTNAME + " Worker ["+index+"] said : Pass Message Over ["+message+"] ");
 		}
 	}
 	
