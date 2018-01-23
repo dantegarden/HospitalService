@@ -188,6 +188,7 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 				
 				try {
 					driver = new FirefoxDriver(profile);
+					
 					//driver.manage().window().maximize();// 窗口最大化
 					SaxResult rawSr = this.fillForm(driver,tableid,fpxx,0);
 					BeanUtils.copyProperties(rawSr, sr);
@@ -245,18 +246,22 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 			}
 		}		
 		
-		System.out.println("LOG-checkFpEffect:" + "打开网页，赋值表单");
-		
+		System.out.println("LOG-checkFpEffect:" + "打开网页");
 		driver.get("https://inv-veri.chinatax.gov.cn");
+		
+		System.out.println("LOG-checkFpEffect:" + "赋值表单");
 		WebDriverWait wait = new WebDriverWait(driver, 20);
 		
+		System.out.println("LOG-checkFpEffect:" + "赋值fpdm");
 		WebElement fpdm = driver.findElement(By.id("fpdm"));
 		fpdm.sendKeys(fpxx.getFpdm());
-		
+		System.out.println("LOG-checkFpEffect:" + "赋值fphm");
 		WebElement fphm = driver.findElement(By.id("fphm"));
 		fphm.sendKeys(fpxx.getFphm());
+		System.out.println("LOG-checkFpEffect:" + "赋值fprq");
 		WebElement kprq = driver.findElement(By.id("kprq"));
 		kprq.sendKeys(fpxx.getKprq());
+		System.out.println("LOG-checkFpEffect:" + "赋值kjje");
 		WebElement kjje = driver.findElement(By.id("kjje"));
 		kjje.sendKeys(fpxx.getKjje());
 		
