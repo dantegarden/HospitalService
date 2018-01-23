@@ -6,10 +6,13 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -73,7 +76,14 @@ public class InitServiceImpl implements InitService {
 		ODOO_INTERFACE = prop.getProperty("odoo.interface");
 		SYS_HOSTNAME = getHostNameForLiunx();
 		WAIT_TIME = prop.getProperty("wait.time");
-		pool = Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
+		pool = newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
+				//Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
+	}
+	
+	public static ExecutorService newFixedThreadPool(int nThreads) {
+		ThreadPoolExecutor pool = new ThreadPoolExecutor(nThreads, nThreads, 300L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(Integer.valueOf(CONSUMER_NUM)));
+		pool.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardOldestPolicy());
+		return pool;
 	}
 	
 	@Override
@@ -151,16 +161,18 @@ public class InitServiceImpl implements InitService {
 	}
 	
 	private void consume(String message, Integer index) throws Exception {
-
+		System.out.println("LOG-init: Worker["+ index +"]开始消费");
 		Thread mainThread = Thread.currentThread();//主线程
 
 		NewSaxServiceImpl saxService = new NewSaxServiceImpl();
 		saxService.setEwmJson(message);
 //		Thread saxThread = new Thread(saxService); //子线程
 //		saxThread.start();
-		
+		System.out.println("LOG-init: Worker["+ index +"]提交任务");
 		Future<String> future = pool.submit(saxService);
-		try {  
+		try {
+			
+			System.out.println("LOG-init: Worker["+ index +"]获取线程，执行任务");
 			String backJson = future.get(Integer.valueOf(InitServiceImpl.WAIT_TIME), TimeUnit.SECONDS);  
 			invokeOdooInPost(backJson, index, message);
         } catch (InterruptedException e) {
