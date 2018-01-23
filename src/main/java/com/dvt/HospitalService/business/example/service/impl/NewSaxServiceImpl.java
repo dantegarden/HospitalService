@@ -673,6 +673,7 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 					if(SeleniumUtils.doesWebElementExist(driver, By.id("popup_message"))){
 						alert_msg = driver.findElement(By.id("popup_message")).getText();
 					}else{
+						System.out.println("LOG-checkFpEffect:失败原因 " + e.getMessage() );
 						if(e.getMessage().indexOf("TimeOutException")>-1){
 							alert_msg = "验证码没刷出来";
 						}else{
