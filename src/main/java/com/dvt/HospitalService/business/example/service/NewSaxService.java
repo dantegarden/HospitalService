@@ -4,6 +4,6 @@ import com.dvt.HospitalService.business.example.dto.SaxResult;
 
 public interface NewSaxService {
 	
-	public SaxResult checkFpEffect(String ewmJson) throws Exception;
+	public SaxResult checkFpEffect(String ewmJson,String index) throws Exception;
 	
 }

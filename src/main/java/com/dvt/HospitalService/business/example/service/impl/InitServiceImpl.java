@@ -165,6 +165,7 @@ public class InitServiceImpl implements InitService {
 		Thread mainThread = Thread.currentThread();//主线程
 
 		NewSaxServiceImpl saxService = new NewSaxServiceImpl();
+		saxService.setWorkerIndex(String.valueOf(index));
 		saxService.setEwmJson(message);
 //		Thread saxThread = new Thread(saxService); //子线程
 //		saxThread.start();
@@ -193,7 +194,7 @@ public class InitServiceImpl implements InitService {
 		while(!future.isDone()&&!future.isCancelled()){
 			mainThread.sleep(1000);
 		}
-		System.out.println("1111");
+		System.out.println("LOG-init: Worker["+ index +"]结束消费");
 //		SaxResult sr = this.newSaxService.checkFpEffect(message);
 //		String backJson = JsonUtils.JavaBeanToJson(sr);
 		//TODO 调odoo接口返回数据
