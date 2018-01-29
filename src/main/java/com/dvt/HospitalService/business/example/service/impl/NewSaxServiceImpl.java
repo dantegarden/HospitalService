@@ -51,62 +51,62 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 			  "geckodriver.version","0.18.exe");
 
 
-	public static final String contextDir = "E://Program Files//apache-tomcat-8.0.41//webapps//HospitalService";
-	public static final String filepath = contextDir+ "//yzm_pic//yzm"; // 验证码图片
-	public static final String filepath2 = contextDir + "//yzm_pic//yzm_ms";// 验证码要求
-	public static final String fileoutpath = contextDir + "//yzm_pic//union"; // 拼好的验证码+要求
-	public static final String fileyzmmsA = contextDir+"//yzm_pic//yzmmsA.jpeg";
-	public static final String fileyzmmsB = contextDir+"//yzm_pic//yzmmsB.jpeg";
-	public static final String firefoxPath = "D:\\Program Files (x86)\\Mozilla Firefox_"+version.get("firefox.version")+"\\firefox.exe"; 
-	public static final String profilePath = "C://Users//ＣＩＬＡＮＧ//AppData//Roaming//Mozilla//Firefox//Profiles//ssl-p";
-	public static final String phantomjspath = "E://chrome//phantomjs-2.1.1-windows//bin//phantomjs.exe";
-	
-	//使用超级鹰的账号密码信息
-	public static final String username = "dantegarden";
-	public static final String password = "10121118Dante";
-	public static final String machineCode = "1234";// 数字，随便写
-	public static final String codeType = "6004";// 写死6004
-	private static WebDriverPool webDriverPool = new WebDriverPool(10);
-	
-//	public static final String contextDir;
-//	public static final String filepath; // 验证码图片
-//	public static final String filepath2;// 验证码要求
-//	public static final String fileoutpath; // 拼好的验证码+要求
-//	public static final String fileyzmmsA;
-//	public static final String fileyzmmsB;
-//	public static final String profilePath;//火狐profile文件夹位置
-//	public static final String firefoxPath;
-//	public static final String phantomjspath;
-//	private static WebDriverPool webDriverPool = null;//驱动池
+//	public static final String contextDir = "E://Program Files//apache-tomcat-8.0.41//webapps//HospitalService";
+//	public static final String filepath = contextDir+ "//yzm_pic//yzm"; // 验证码图片
+//	public static final String filepath2 = contextDir + "//yzm_pic//yzm_ms";// 验证码要求
+//	public static final String fileoutpath = contextDir + "//yzm_pic//union"; // 拼好的验证码+要求
+//	public static final String fileyzmmsA = contextDir+"//yzm_pic//yzmmsA.jpeg";
+//	public static final String fileyzmmsB = contextDir+"//yzm_pic//yzmmsB.jpeg";
+//	public static final String firefoxPath = "D:\\Program Files (x86)\\Mozilla Firefox_"+version.get("firefox.version")+"\\firefox.exe"; 
+//	public static final String profilePath = "C://Users//ＣＩＬＡＮＧ//AppData//Roaming//Mozilla//Firefox//Profiles//ssl-p";
+//	public static final String phantomjspath = "E://chrome//phantomjs-2.1.1-windows//bin//phantomjs.exe";
 //	
 //	//使用超级鹰的账号密码信息
-//	public static final String username;
-//	public static final String password;
-//	public static final String machineCode;// 数字，随便写
-//	public static final String codeType;// 写死6004
-//	
-//	static{
-//		Properties prop = new Properties();
-//		try {
-//			prop.load(NewSaxServiceImpl.class.getClassLoader().getResourceAsStream("deploy.properties"));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		username = prop.getProperty("chaojiying.username");
-//		password = prop.getProperty("chaojiying.password");
-//		machineCode = prop.getProperty("chaojiying.machineCode");
-//		codeType = prop.getProperty("chaojiying.codeType");
-//		contextDir=prop.getProperty("contextDir");
-//		filepath = contextDir + prop.getProperty("yzm.path");
-//		filepath2 = contextDir + prop.getProperty("yzm.yqpath");
-//		fileoutpath = contextDir + prop.getProperty("yzm.unionpath");
-//		fileyzmmsA = contextDir + prop.getProperty("yzm.msA");
-//		fileyzmmsB = contextDir+ prop.getProperty("yzm.msB");
-//		profilePath = prop.getProperty("profileDir");
-//		firefoxPath = "/usr/bin/firefox";
-//		phantomjspath = prop.getProperty("phantomjs.path");
-//		webDriverPool = new WebDriverPool(Integer.valueOf(prop.getProperty("queue.capacity")));
-//	}
+//	public static final String username = "dantegarden";
+//	public static final String password = "10121118Dante";
+//	public static final String machineCode = "1234";// 数字，随便写
+//	public static final String codeType = "6004";// 写死6004
+//	private static WebDriverPool webDriverPool = new WebDriverPool(10);
+	
+	public static final String contextDir;
+	public static final String filepath; // 验证码图片
+	public static final String filepath2;// 验证码要求
+	public static final String fileoutpath; // 拼好的验证码+要求
+	public static final String fileyzmmsA;
+	public static final String fileyzmmsB;
+	public static final String profilePath;//火狐profile文件夹位置
+	public static final String firefoxPath;
+	public static final String phantomjspath;
+	private static WebDriverPool webDriverPool = null;//驱动池
+	
+	//使用超级鹰的账号密码信息
+	public static final String username;
+	public static final String password;
+	public static final String machineCode;// 数字，随便写
+	public static final String codeType;// 写死6004
+	
+	static{
+		Properties prop = new Properties();
+		try {
+			prop.load(NewSaxServiceImpl.class.getClassLoader().getResourceAsStream("deploy.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		username = prop.getProperty("chaojiying.username");
+		password = prop.getProperty("chaojiying.password");
+		machineCode = prop.getProperty("chaojiying.machineCode");
+		codeType = prop.getProperty("chaojiying.codeType");
+		contextDir=prop.getProperty("contextDir");
+		filepath = contextDir + prop.getProperty("yzm.path");
+		filepath2 = contextDir + prop.getProperty("yzm.yqpath");
+		fileoutpath = contextDir + prop.getProperty("yzm.unionpath");
+		fileyzmmsA = contextDir + prop.getProperty("yzm.msA");
+		fileyzmmsB = contextDir+ prop.getProperty("yzm.msB");
+		profilePath = prop.getProperty("profileDir");
+		firefoxPath = "/usr/bin/firefox";
+		phantomjspath = prop.getProperty("phantomjs.path");
+		webDriverPool = new WebDriverPool(Integer.valueOf(prop.getProperty("queue.capacity")));
+	}
 	
 	private String ewmJson;
 	private String workerIndex = "0";
