@@ -1,9 +1,11 @@
 package com.dvt.HospitalService.business.example.service.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -16,11 +18,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.beust.jcommander.internal.Lists;
 import com.dvt.HospitalService.business.example.dto.Fpxx;
 import com.dvt.HospitalService.business.example.dto.PassResult;
 import com.dvt.HospitalService.business.example.dto.SaxResult;
@@ -29,6 +33,7 @@ import com.dvt.HospitalService.business.example.service.NewSaxService;
 import com.dvt.HospitalService.commons.utils.CommonHelper;
 import com.dvt.HospitalService.commons.utils.HttpHelper;
 import com.dvt.HospitalService.commons.utils.JsonUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.rabbitmq.client.Channel;
@@ -57,7 +62,7 @@ public class InitServiceImpl implements InitService {
 	private final static String SYS_HOSTNAME;
 	private final static String ODOO_INTERFACE;
 	private final static String WAIT_TIME;
-	private final static ExecutorService pool;
+	private final static List<ExecutorService> pools;
 	static{
 		Properties prop = new Properties();
 		try {
@@ -76,8 +81,11 @@ public class InitServiceImpl implements InitService {
 		ODOO_INTERFACE = prop.getProperty("odoo.interface");
 		SYS_HOSTNAME = getHostNameForLiunx();
 		WAIT_TIME = prop.getProperty("wait.time");
-		pool = newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
-				//Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
+		pools = Lists.newArrayList();
+		for (int i = 0; i < Integer.valueOf(CONSUMER_NUM); i++) {
+			pools.add(Executors.newSingleThreadExecutor());
+		}
+		//Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
 	}
 	
 	public static ExecutorService newFixedThreadPool(int nThreads) {
@@ -152,7 +160,7 @@ public class InitServiceImpl implements InitService {
 				} finally {
 					logger.info(SYS_HOSTNAME + " Worker ["+index+"] said : Finished Message ["+message+"] ");
 					// 消息处理完成确认
-                    channel.basicAck(envelope.getDeliveryTag(), false);
+					channel.basicAck(envelope.getDeliveryTag(), false);
 				}
 			}
         };
@@ -170,35 +178,77 @@ public class InitServiceImpl implements InitService {
 //		Thread saxThread = new Thread(saxService); //子线程
 //		saxThread.start();
 		System.out.println("LOG-init: Worker["+ index +"]提交任务");
+		
+		ExecutorService pool = pools.get(index-1);
+		if(pool.isTerminated()){
+			pools.set(index-1, Executors.newSingleThreadExecutor());
+			pool = pools.get(index-1);
+		}
+		
 		Future<String> future = pool.submit(saxService);
 		try {
-			
 			System.out.println("LOG-init: Worker["+ index +"]获取线程，执行任务");
 			String backJson = future.get(Integer.valueOf(InitServiceImpl.WAIT_TIME), TimeUnit.SECONDS);  
 			invokeOdooInPost(backJson, index, message);
         } catch (InterruptedException e) {
-        	System.out.println("InterruptedException 超时30秒");
-        	future.cancel(true);
+        	System.out.println("LOG-init: Worker["+ index +"] InterruptedException 超时"+InitServiceImpl.WAIT_TIME+"秒");
+        	//killThread(future, saxService, index);
         	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
         } catch (ExecutionException e) {
-        	System.out.println("ExecutionException 超时30秒");
-        	future.cancel(true);
+        	System.out.println("LOG-init: Worker["+ index +"] InterruptedException 超时"+InitServiceImpl.WAIT_TIME+"秒");
+        	//killThread(future, saxService, index);
         	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
         } catch (TimeoutException e) {  
-        	System.out.println("TimeoutException 超时30秒");
-        	future.cancel(true); 
+        	System.out.println("LOG-init: Worker["+ index +"] InterruptedException 超时"+InitServiceImpl.WAIT_TIME+"秒");
+        	//killThread(future, saxService, index);
         	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
+        } finally{
+        	if(!future.isDone() && !future.isCancelled()){
+        		killThread(future, saxService, index);//强制结束线程
+        	}
+        	System.out.println("LOG-init: Worker["+ index +"]结束消费");
         }
 		
+//		while(!future.isDone()&&!future.isCancelled()){
+//			mainThread.sleep(1000);
+//		}
 		
-		while(!future.isDone()&&!future.isCancelled()){
-			mainThread.sleep(1000);
-		}
-		System.out.println("LOG-init: Worker["+ index +"]结束消费");
 //		SaxResult sr = this.newSaxService.checkFpEffect(message);
 //		String backJson = JsonUtils.JavaBeanToJson(sr);
 		//TODO 调odoo接口返回数据
 		//invokeOdooInPost(backJson, index, message);
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void killThread(Future future, NewSaxService newSaxService, Integer index) throws TimeoutException{
+		future.cancel(true); 
+    	Field runner;
+		try {
+			runner = future.getClass().getDeclaredField("runner");
+			runner.setAccessible(true);  
+	        Thread execThread = (Thread) runner.get(future);  
+	        
+	        System.out.println("LOG-init: Worker["+ index +"]强制杀死线程["+execThread.getId()+"]");
+	        
+	        pools.get(index-1).shutdownNow();
+
+	        //强杀火狐
+	        WebDriver firefoxDriver = newSaxService.getFireFoxDriver();
+	        if(firefoxDriver!=null){
+	        	firefoxDriver.quit();
+	        	System.out.println("LOG-init: Worker["+ index +"]关闭火狐浏览器");
+	        }
+	        
+	        //execThread.stop();  
+	        //execThread = null;  
+	        
+	        // 为了防止句柄泄漏，这里催促jvm进行gc回收，那是因为进行gc回收时，可以收回被stop的线程所占用的句柄  
+	        //System.gc();  
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new TimeoutException("关闭线程失败");
+		}
 	}
 	
 	private void invokeOdooInPost(String backJson, Integer index, String message) throws IOException{
