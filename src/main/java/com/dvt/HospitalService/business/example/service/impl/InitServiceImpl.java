@@ -63,6 +63,7 @@ public class InitServiceImpl implements InitService {
 	private final static String ODOO_INTERFACE;
 	private final static String WAIT_TIME;
 	private final static List<ExecutorService> pools;
+	private final static List<Boolean> poolInterupteds;
 	static{
 		Properties prop = new Properties();
 		try {
@@ -84,6 +85,10 @@ public class InitServiceImpl implements InitService {
 		pools = Lists.newArrayList();
 		for (int i = 0; i < Integer.valueOf(CONSUMER_NUM); i++) {
 			pools.add(Executors.newSingleThreadExecutor());
+		}
+		poolInterupteds = Lists.newArrayList();
+		for (int i = 0; i < Integer.valueOf(CONSUMER_NUM); i++) {
+			poolInterupteds.add(false);
 		}
 		//Executors.newFixedThreadPool(Integer.valueOf(CONSUMER_NUM));
 	}
@@ -180,9 +185,11 @@ public class InitServiceImpl implements InitService {
 		System.out.println("LOG-init: Worker["+ index +"]提交任务");
 		
 		ExecutorService pool = pools.get(index-1);
-		if(pool.isTerminated()){
+		if(poolInterupteds.get(index-1)){
 			pools.set(index-1, Executors.newSingleThreadExecutor());
 			pool = pools.get(index-1);
+			
+			poolInterupteds.set(index-1, false);
 		}
 		
 		Future<String> future = pool.submit(saxService);
@@ -238,7 +245,7 @@ public class InitServiceImpl implements InitService {
 	        	firefoxDriver.quit();
 	        	System.out.println("LOG-init: Worker["+ index +"]关闭火狐浏览器");
 	        }
-	        
+	        poolInterupteds.set(index-1, true);
 	        //execThread.stop();  
 	        //execThread = null;  
 	        
