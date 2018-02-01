@@ -720,7 +720,7 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 							if(e.getMessage().indexOf("tried for 100 second(s) with 500 MILLISECONDS interval")>-1){
 								alert_msg = "验证码没刷出来";
 							}else{
-								alert_msg = "未知错误，记下报文"+fpxx.getFpdm()+","+fpxx.getFphm();
+								alert_msg = "未知错误，来自主机"+InitServiceImpl.getHostNameForLiunx()+",记下报文"+fpxx.getFpdm()+","+fpxx.getFphm();
 							}
 						}
 						

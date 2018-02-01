@@ -245,7 +245,6 @@ public class InitServiceImpl implements InitService {
 	        	firefoxDriver.quit();
 	        	System.out.println("LOG-init: Worker["+ index +"]关闭火狐浏览器");
 	        }
-	        poolInterupteds.set(index-1, true);
 	        //execThread.stop();  
 	        //execThread = null;  
 	        
@@ -255,6 +254,10 @@ public class InitServiceImpl implements InitService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new TimeoutException("关闭线程失败");
+		} finally{
+			poolInterupteds.set(index-1, true);
+			// 为了防止句柄泄漏，这里催促jvm进行gc回收，那是因为进行gc回收时，可以收回被stop的线程所占用的句柄
+			System.gc();
 		}
 	}
 	
