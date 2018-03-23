@@ -212,6 +212,25 @@ public class SaxMsg {
 		this.fp_base64 = fp_base64;
 	}
 	
+	public void checkFpmx(){
+		if(this.getGgxh().startsWith("null&&")
+		   &&this.getDw().startsWith("null&&")
+		   &&this.getSl().startsWith("null&&")
+		   &&this.getDj().startsWith("null&&")
+		   &&this.getJe().startsWith("null&&")
+		   &&this.getSlv().startsWith("null&&")
+		   &&this.getSe().startsWith("null&&")
+		   &&this.getYsmc().startsWith("null&&")){
+			setYsmc(ysmc.substring(6));
+			setSl(sl.substring(6));
+			setDj(dj.substring(6));
+			setJe(je.substring(6));
+			setSlv(slv.substring(6));
+			setSe(se.substring(6));
+			setGgxh(ggxh.substring(6));
+			setDw(dw.substring(6));
+		}
+	}
 	
 	public SaxMsg(String fpdm, String fphm, String kpsj, String jym,
 			String jqhm, String gmf_mc, String gmf_nsrsbh, String gmf_dzdh,
