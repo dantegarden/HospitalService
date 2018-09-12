@@ -529,6 +529,7 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 									System.out.println("LOG-checkFpEffect: Worker["+ index +"]" + "正常表格");
 									
 									boolean flag = Boolean.FALSE;
+									int itemsStartIndex = 10;
 									int counter = 0;
 									
 									if(SeleniumUtils.doesWebElementExist(driver, By.id("tabPage-jsfp"))){
@@ -554,12 +555,16 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 													break;
 												}
 											}else if(counter>=10){
-												if(!flag && (counter==10 || (counter-10)%4==0)){
+												if(StringUtils.isBlank(we.getText())){
+													itemsStartIndex++;
+												}
+												
+												if(!flag && (counter==10 || (counter-itemsStartIndex)%4==0)){
 													if(we.getText().contains("￥")){
 														sm.setJe_xx(we.getText());
 														flag = Boolean.TRUE;
 													}else{
-														sm.setYsmc(strC(sm.getYsmc())+we.getText());
+														sm.setYsmc(strC(sm.getYsmc()==null?"":sm.getYsmc())+we.getText());
 													}
 													startIndex = counter;
 												}else{
@@ -567,9 +572,9 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 														if(startIndex+1==counter){sm.setJe_dx(we.getText());}
 														else if(startIndex+2==counter){sm.setJym(we.getText());}
 													}else{
-														if(startIndex+1==counter){sm.setDj(strC(sm.getDj())+we.getText());}
-														else if(startIndex+2==counter){sm.setSl(strC(sm.getSl())+we.getText());}
-														else if(startIndex+3==counter){sm.setJe(strC(sm.getJe())+we.getText());}
+														if(startIndex+1==counter){sm.setDj(strC(sm.getDj()==null?"":sm.getDj())+we.getText());}
+														else if(startIndex+2==counter){sm.setSl(strC(sm.getSl()==null?"":sm.getSl())+we.getText());}
+														else if(startIndex+3==counter){sm.setJe(strC(sm.getJe()==null?"":sm.getJe())+we.getText());}
 													}
 												}
 											}
