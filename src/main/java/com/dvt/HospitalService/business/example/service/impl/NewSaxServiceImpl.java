@@ -48,7 +48,7 @@ public class NewSaxServiceImpl implements NewSaxService, Callable<String>  {
 
 	public static final Map version = ImmutableMap.of("selenium.version", "3.3.1", //3.4.0的实现方式无法截全屏
 			  "firefox.version", "47.0.1", //54
-			  "geckodriver.version","0.18.exe");
+			  "geckodriver.version","0.18");
 
 
 //	public static final String contextDir = "E://Program Files//apache-tomcat-8.0.41//webapps//HospitalService";
