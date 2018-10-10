@@ -203,6 +203,7 @@ public class InitServiceImpl implements InitService {
         	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
         } catch (ExecutionException e) {
         	System.out.println("LOG-init: Worker["+ index +"] InterruptedException 超时"+InitServiceImpl.WAIT_TIME+"秒");
+        	e.printStackTrace();
         	//killThread(future, saxService, index);
         	throw new TimeoutException("获取超时"+InitServiceImpl.WAIT_TIME+"秒");
         } catch (TimeoutException e) {  
